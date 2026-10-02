@@ -7,9 +7,6 @@ Earlier working name was AdSeq, dropped because AdFill / AdSeq / AdServe all rea
 transformer, measure it honestly against the tabular feature-crossing models that ads ranking has
 used for a decade, and find out what sequence length is actually worth in quality and in dollars.
 
-Move this file into its own public repo before starting. Keep any "why this company" note
-gitignored, as AdFill does.
-
 ---
 
 ## Why it exists
@@ -20,7 +17,8 @@ are fast, well understood, and they throw away order: everything the user did be
 is compressed into a handful of aggregate counts.
 
 The field is now moving to **sequence models** — feed the model the user's actual ordered history
-and let attention decide what matters. Meta's ads ranking has been moving this way publicly.
+and let attention decide what matters. Large production ad systems have been moving this way
+publicly.
 
 **Nobody has shown you, on data you can check, whether this is worth it.** Papers report wins on
 private data at a scale you cannot reproduce. This project asks the smaller and more answerable
@@ -157,9 +155,8 @@ operating point stated with its justification.
 **Build:** a multi-task head predicting several action types at once, against independent
 single-task models at matched total parameters.
 
-Mirror the platform vocabulary honestly: **estimated action rates**, **normalized entropy**,
-**calibration**. Avoid sponsored-search vocabulary entirely — no GSP, no second price, no "ghost
-ads". That is the wrong dialect for this domain and it is an instant tell.
+Report in terms of **estimated action rates**, **normalized entropy** and **calibration** — the
+quantities that matter when a prediction is multiplied by a bid.
 
 **Measure:** per-task NE and calibration, total parameters and training cost, and whether any task
 is harmed by sharing.
@@ -233,17 +230,3 @@ attention path in Phase 7.
 **Hardware:** develop small and local; rent an A100 for the Phase 4 sweep and the Phase 6 serving
 grid. Checkpoint every epoch so a preempted spot instance costs minutes. Sequence datasets are
 small on disk compared to video — storage is not the constraint here, GPU hours are.
-
----
-
-## How it goes on a résumé
-
-**Not until Phase 4 has a committed results file.** Phases 1-3 alone are a reimplementation;
-Phase 4 is the contribution.
-
-- **Meta and other ads-ranking reqs** — lead with the sequence-versus-tabular result and the
-  calibration work, in their vocabulary: estimated action rates, normalized entropy, calibration.
-- **GPU / systems reqs** — lead with the sequence-length cost curve and the serving sweep.
-
-Never ship this alongside AdFill on a non-ads req, and never ship all three ads projects at once.
-Two projects, chosen per req, through `pin.yaml`.
