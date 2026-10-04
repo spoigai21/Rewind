@@ -1,2 +1,11 @@
 # Private local notes
 MOTIVATION.md
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Raw and processed data never go in git
+data/

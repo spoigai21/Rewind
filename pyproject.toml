@@ -1,0 +1,16 @@
+[project]
+name = "rewind"
+version = "0.1.0"
+description = "Sequence models vs feature-crossing models for ad click prediction, measured on a public log."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy>=2.0",
+    "torch>=2.5",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
