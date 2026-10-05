@@ -12,10 +12,10 @@
     "python": "3.12.14"
   },
   "git": {
-    "commit": "bef8eaf",
-    "dirty": true
+    "commit": "e5ec757",
+    "dirty": false
   },
-  "created_utc": "2026-10-04T21:24:37+00:00",
+  "created_utc": "2026-10-05T00:17:06+00:00",
   "config": {
     "batch_size": 8,
     "warmup_steps": 5,
@@ -41,18 +41,18 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 57.472,
-        "ms_min": 40.281,
-        "ms_max": 137.452,
-        "examples_per_s": 139.2
+        "ms_median": 27.747,
+        "ms_min": 25.945,
+        "ms_max": 30.354,
+        "examples_per_s": 288.3
       },
       "infer": {
-        "ms_median": 4.216,
-        "ms_min": 3.156,
-        "ms_max": 7.683,
-        "examples_per_s": 1897.4
+        "ms_median": 2.453,
+        "ms_min": 2.238,
+        "ms_max": 3.552,
+        "examples_per_s": 3260.7
       },
-      "peak_mem_gb": 1.093,
+      "peak_mem_gb": 1.095,
       "unstable_timing": false
     },
     {
@@ -64,16 +64,16 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 77.705,
-        "ms_min": 57.294,
-        "ms_max": 247.103,
-        "examples_per_s": 103.0
+        "ms_median": 58.585,
+        "ms_min": 56.05,
+        "ms_max": 65.549,
+        "examples_per_s": 136.6
       },
       "infer": {
-        "ms_median": 10.886,
-        "ms_min": 6.16,
-        "ms_max": 14.013,
-        "examples_per_s": 734.9
+        "ms_median": 5.827,
+        "ms_min": 5.378,
+        "ms_max": 7.267,
+        "examples_per_s": 1372.8
       },
       "peak_mem_gb": 1.099,
       "unstable_timing": false
@@ -87,16 +87,16 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 186.278,
-        "ms_min": 170.273,
-        "ms_max": 541.905,
-        "examples_per_s": 42.9
+        "ms_median": 209.381,
+        "ms_min": 181.349,
+        "ms_max": 230.055,
+        "examples_per_s": 38.2
       },
       "infer": {
-        "ms_median": 49.2,
-        "ms_min": 17.061,
-        "ms_max": 77.668,
-        "examples_per_s": 162.6
+        "ms_median": 20.164,
+        "ms_min": 18.699,
+        "ms_max": 27.057,
+        "examples_per_s": 396.7
       },
       "peak_mem_gb": 3.248,
       "unstable_timing": false

@@ -22,30 +22,33 @@ Training cost per example, fastest step to median step over 20 timed steps
 
 | History length | Batch | ms per example | Cost vs. previous length |
 |---:|---:|---:|---:|
-| 16 | 32 | 0.48 - 0.50 | — |
-| 32 | 32 | 0.49 - 0.53 | x1.0 |
-| 64 | 32 | 0.57 - 1.21 | x1.2 |
-| 128 | 32 | 0.96 - 1.35 | x1.7 |
-| 256 | 32 | 0.94 - 1.83 | x1.0 |
-| 512 | 32 | 1.91 - 1.96 | x2.0 |
-| 1024 | 32 | 6.06 - 9.49 | x3.2 |
-| 2048 | 8 | 21.3 - 23.3 | x3.5 (smaller batch; see note) |
+| 16 | 32 | 0.46 - 0.48 | — |
+| 32 | 32 | 0.47 - 0.50 | x1.0 |
+| 64 | 32 | 0.48 - 0.49 | x1.0 |
+| 128 | 32 | 0.58 - 0.64 | x1.2 |
+| 256 | 32 | 0.87 - 0.93 | x1.5 |
+| 512 | 32 | 1.93 - 2.15 | x2.2 |
+| 1024 | 32 | 6.11 - 7.19 | x3.2 |
+| 2048 | 8 | 22.7 - 26.2 | x3.7 (smaller batch; see note) |
 
 L = 2048 did not fit in memory at batch 32, so it was measured at batch 8. Smaller batches use
-the GPU less efficiently, so the x3.5 step slightly overstates the true growth.
+the GPU less efficiently, so the x3.7 step slightly overstates the true growth.
 
 **What the shape says:**
 
 - **Up to ~128, history is nearly free.** The fixed cost of every step (looking up and updating the
-  16.8M-entry embedding table) dominates. Cost per doubling is about x1.
-- **Past ~256, attention takes over.** A descriptive fit puts the crossover near L = 220, and the
-  cost per doubling climbs toward the x4 a pure quadratic would give (x3.2, then x3.5).
+  16.8M-entry embedding table) dominates. Cost per doubling is x1.0-1.2.
+- **Past ~256, attention takes over.** Cost per doubling climbs x1.5, x2.2, x3.2, x3.7, heading
+  for the x4 that pure attention (every token compared with every other) would give.
 - **The laptop cannot train past ~1024 at batch 32 or ~2048 at batch 8.** Above that, memory runs out
   and the OS swaps. This is the memory wall that a memory-efficient attention implementation
   (Phase 7) would move.
 
-Ranges are wide because the laptop shares its GPU with other apps; see `BUGLOG.md` #2-#5 for what
-was caught and fixed in getting these numbers.
+No single "crossover length" is claimed. A quadratic fitted to these timings put the point where
+attention overtakes the rest at L = 220 on one run and L = 59 on the next, so the fit is too
+sensitive to timing noise to support that number; the per-doubling ratios above are the finding.
+An earlier, noisier run of the same code (`BUGLOG.md` #2-#5) gave ranges 2-3x wider; these figures
+come from a rerun at commit `e5ec757` with a clean working tree.
 
 ---
 
@@ -54,16 +57,16 @@ was caught and fixed in getting these numbers.
 **Plan:** lengths 16, 32, ..., 2048 (8 lengths) x 3 seeds x ~19.5M training examples x 1 epoch,
 plus 50% for validation passes, failed runs and restarts.
 
-**Predicted: 53 - 196 A100 hours, $53 - $489, mid estimate ~100 hours and ~$170.**
+**Predicted: 55 - 188 A100 hours, $55 - $470, mid estimate ~94 hours and ~$164.**
 (`results/phase0/projection.json`)
 
 | Length | A100 hours |
 |---:|---:|
-| 16 - 512 (six lengths together) | 9 - 36 |
-| 1024 | 10 - 46 |
-| 2048 | 35 - 114 |
+| 16 - 512 (six lengths together) | 8 - 25 |
+| 1024 | 10 - 35 |
+| 2048 | 37 - 128 |
 
-**L = 2048 alone is 58-65% of the bill.**
+**L = 2048 alone is about 68% of the bill.**
 
 **Assumptions, weakest first:**
 
@@ -82,7 +85,7 @@ plus 50% for validation passes, failed runs and restarts.
 - **First rented hour:** re-measure L = 128 and L = 1024 on the A100. If the speedup is below 5x, or
   the re-projected total exceeds $500, stop and re-plan before launching the sweep.
 - **L = 2048 runs only if going from 512 to 1024 improved validation NE by more than the spread
-  across seeds.** If 1024 bought nothing, 2048 is not worth 60% of the budget, and saying so is
+  across seeds.** If 1024 bought nothing, 2048 is not worth two thirds of the budget, and saying so is
   itself the Phase 4 result.
 
 ---

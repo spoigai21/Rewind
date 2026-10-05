@@ -8,4 +8,4 @@ __pycache__/
 .pytest_cache/
 
 # Raw and processed data never go in git
-data/
+/data/

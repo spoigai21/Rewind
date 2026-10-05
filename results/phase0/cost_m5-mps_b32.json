@@ -12,10 +12,10 @@
     "python": "3.12.14"
   },
   "git": {
-    "commit": "bef8eaf",
-    "dirty": true
+    "commit": "e5ec757",
+    "dirty": false
   },
-  "created_utc": "2026-10-04T21:26:07+00:00",
+  "created_utc": "2026-10-05T00:16:14+00:00",
   "config": {
     "batch_size": 32,
     "warmup_steps": 5,
@@ -41,16 +41,16 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 16.021,
-        "ms_min": 15.335,
-        "ms_max": 18.341,
-        "examples_per_s": 1997.4
+        "ms_median": 15.367,
+        "ms_min": 14.811,
+        "ms_max": 16.439,
+        "examples_per_s": 2082.3
       },
       "infer": {
-        "ms_median": 0.666,
-        "ms_min": 0.646,
-        "ms_max": 0.766,
-        "examples_per_s": 48016.5
+        "ms_median": 0.628,
+        "ms_min": 0.615,
+        "ms_max": 0.652,
+        "examples_per_s": 50920.0
       },
       "peak_mem_gb": 1.102,
       "unstable_timing": false
@@ -64,16 +64,16 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 16.788,
-        "ms_min": 15.668,
-        "ms_max": 24.245,
-        "examples_per_s": 1906.1
+        "ms_median": 15.883,
+        "ms_min": 14.977,
+        "ms_max": 17.389,
+        "examples_per_s": 2014.7
       },
       "infer": {
-        "ms_median": 2.127,
-        "ms_min": 1.102,
-        "ms_max": 2.646,
-        "examples_per_s": 15042.9
+        "ms_median": 0.761,
+        "ms_min": 0.738,
+        "ms_max": 0.946,
+        "examples_per_s": 42033.8
       },
       "peak_mem_gb": 1.102,
       "unstable_timing": false
@@ -87,19 +87,19 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 38.579,
-        "ms_min": 18.174,
-        "ms_max": 89.615,
-        "examples_per_s": 829.5
+        "ms_median": 15.717,
+        "ms_min": 15.449,
+        "ms_max": 17.217,
+        "examples_per_s": 2036.0
       },
       "infer": {
-        "ms_median": 8.256,
-        "ms_min": 2.525,
-        "ms_max": 11.171,
-        "examples_per_s": 3875.9
+        "ms_median": 1.06,
+        "ms_min": 0.98,
+        "ms_max": 1.095,
+        "examples_per_s": 30189.9
       },
       "peak_mem_gb": 1.111,
-      "unstable_timing": true
+      "unstable_timing": false
     },
     {
       "seq_len": 128,
@@ -110,16 +110,16 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 43.317,
-        "ms_min": 30.712,
-        "ms_max": 108.589,
-        "examples_per_s": 738.7
+        "ms_median": 20.379,
+        "ms_min": 18.692,
+        "ms_max": 23.833,
+        "examples_per_s": 1570.3
       },
       "infer": {
-        "ms_median": 2.674,
-        "ms_min": 2.354,
-        "ms_max": 6.96,
-        "examples_per_s": 11966.3
+        "ms_median": 1.569,
+        "ms_min": 1.497,
+        "ms_max": 1.683,
+        "examples_per_s": 20396.2
       },
       "peak_mem_gb": 1.095,
       "unstable_timing": false
@@ -133,19 +133,19 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 58.703,
-        "ms_min": 30.161,
-        "ms_max": 128.968,
-        "examples_per_s": 545.1
+        "ms_median": 29.642,
+        "ms_min": 27.906,
+        "ms_max": 32.439,
+        "examples_per_s": 1079.6
       },
       "infer": {
-        "ms_median": 3.264,
-        "ms_min": 2.838,
-        "ms_max": 3.653,
-        "examples_per_s": 9805.2
+        "ms_median": 2.859,
+        "ms_min": 2.814,
+        "ms_max": 2.911,
+        "examples_per_s": 11193.5
       },
       "peak_mem_gb": 1.099,
-      "unstable_timing": true
+      "unstable_timing": false
     },
     {
       "seq_len": 512,
@@ -156,16 +156,16 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 62.816,
-        "ms_min": 60.976,
-        "ms_max": 275.531,
-        "examples_per_s": 509.4
+        "ms_median": 68.659,
+        "ms_min": 61.757,
+        "ms_max": 77.174,
+        "examples_per_s": 466.1
       },
       "infer": {
-        "ms_median": 13.841,
-        "ms_min": 10.949,
-        "ms_max": 20.854,
-        "examples_per_s": 2311.9
+        "ms_median": 7.759,
+        "ms_min": 7.319,
+        "ms_max": 11.42,
+        "examples_per_s": 4124.0
       },
       "peak_mem_gb": 2.175,
       "unstable_timing": false
@@ -179,19 +179,19 @@
       },
       "status": "ok",
       "train": {
-        "ms_median": 303.573,
-        "ms_min": 193.83,
-        "ms_max": 611.117,
-        "examples_per_s": 105.4
+        "ms_median": 230.131,
+        "ms_min": 195.368,
+        "ms_max": 246.222,
+        "examples_per_s": 139.1
       },
       "infer": {
-        "ms_median": 26.846,
-        "ms_min": 25.014,
-        "ms_max": 124.356,
-        "examples_per_s": 1192.0
+        "ms_median": 28.678,
+        "ms_min": 26.589,
+        "ms_max": 32.315,
+        "examples_per_s": 1115.8
       },
-      "peak_mem_gb": 3.263,
-      "unstable_timing": true
+      "peak_mem_gb": 3.269,
+      "unstable_timing": false
     },
     {
       "seq_len": 2048,

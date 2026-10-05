@@ -43,6 +43,9 @@ def main() -> None:
 
     device = torch.device(args.device)
     hw = hardware_info(device)
+    # Read the git state before measuring: the code that runs is the code present at the start,
+    # and files edited while a long sweep runs must not change what the result claims.
+    git = git_info()
     out = args.out or Path("results/phase0") / f"cost_{hw['lane']}_b{args.batch_size}.json"
 
     print(f"lane: {hw['lane']}  ({hw['chip']}, torch {hw['torch']})")
@@ -74,7 +77,7 @@ def main() -> None:
         "synthetic_inputs": True,
         "padding": "none (every history full length; worst case)",
         "hardware": hw,
-        "git": git_info(),
+        "git": git,
         "created_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "config": {
             "batch_size": args.batch_size,
