@@ -245,3 +245,40 @@ profile features; the sequence model as planned does not). This will be reported
 - **Stands:** the real-data cost check is still outstanding and must happen before any GPU is
   rented.
 
+---
+
+## 6. Real-data cost check — 2026-10-04, closes Phase 0
+
+The outstanding check from sections 4 and 5. Real training batches (built from the Phase 1
+sequences, training days only) and synthetic batches of the same shape were timed alternately in
+one process, same model and config as section 1. **Pass rule, fixed in the script before the
+first run: real/synthetic ratio of median step time within 0.8-1.25 at every length.**
+(`results/phase0/real_check_m5-mps_b32.json`, `rewind/phase0/real_check.py`)
+
+| Length | Synthetic ms/step | Real ms/step | Ratio | Batch assembly ms | Padding share |
+|---:|---:|---:|---:|---:|---:|
+| 16 | 15.9 | 16.1 | 1.01 | 8.0 | 30.2% |
+| 32 | 17.4 | 17.0 | 0.98 | 6.6 | 43.8% |
+| 64 | 17.1 | 17.0 | 0.99 | 6.0 | 54.9% |
+| 128 | 19.2 | 19.3 | 1.01 | 5.1 | 63.9% |
+| 256 | 29.2 | 29.5 | 1.01 | 5.0 | 77.6% |
+| 512 | 67.9 | 66.0 | 0.97 | 4.8 | 85.0% |
+
+**Result: PASS.** Real inputs cost what synthetic ones do, to within 3%, so the cost projection in
+section 5 stands unchanged. The training loss on real batches was finite at every length.
+
+**Two findings for the rented-GPU runs (no prediction changes):**
+
+- **Data loading could become the bottleneck.** Building a batch of 32 histories on the CPU takes
+  5-8 ms. On the laptop that is well under the 16-68 ms training step, but at the assumed 5-15x
+  speedup an A100 step at short lengths would take roughly 1-4 ms, faster than one CPU thread can
+  feed it. The Phase 4 training loop needs parallel batch assembly (several worker processes) or
+  larger batches, and the first-rented-hour check must time the full loop, not the model alone.
+- **Most history slots are padding** (training days): 55% at length 64, 85% at 512. Grouping
+  examples by history length would cut the long-length runs substantially. As noted in section 5,
+  that is a cost optimisation that leaves results unchanged.
+
+**Phase 0 status: complete.** Every item in its definition of done is in this file: measured rates,
+the extrapolated sweep cost, the predicted answers, and a real-data confirmation, all recorded
+before any GPU was rented or any model was evaluated on real data.
+

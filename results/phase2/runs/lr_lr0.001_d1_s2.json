@@ -1,0 +1,64 @@
+{
+  "model": "lr",
+  "lr": 0.001,
+  "dim": 1,
+  "seed": 2,
+  "batch_size": 4096,
+  "epochs": 1,
+  "optimizer": "Adam",
+  "params": {
+    "total": 1490648,
+    "embedding": 1490622,
+    "dense": 26
+  },
+  "train_seconds": 145.9,
+  "train_examples_per_s": 137191,
+  "final_train_loss_last_500": 0.1968938563168049,
+  "metrics": {
+    "val": {
+      "auc": 0.6599978472351886,
+      "gauc": 0.5391752556047452,
+      "ne": 0.9610803533798145,
+      "ece": 0.003212090495734682,
+      "calibration": 1.0651546912223586,
+      "log_loss": 0.18880172368697826,
+      "n": 3234051,
+      "click_rate": 0.049299469921779214
+    },
+    "val_no_history": {
+      "auc": 0.5917082881307909,
+      "gauc": 0.5696459990869043,
+      "ne": 0.9881946887418136,
+      "ece": 0.007961591668919294,
+      "calibration": 1.1189035493033617,
+      "log_loss": 0.23953448136660582,
+      "n": 218234,
+      "click_rate": 0.06570928452945005
+    },
+    "val_history_256_plus": {
+      "auc": 0.6630801868624886,
+      "gauc": 0.5743322263378523,
+      "ne": 0.9622978455281164,
+      "ece": 0.001869443028016008,
+      "calibration": 0.9924643204634478,
+      "log_loss": 0.12831977506647518,
+      "n": 628828,
+      "click_rate": 0.029599508927719502
+    }
+  },
+  "hardware": {
+    "lane": "m5-mps",
+    "chip": "Apple M5",
+    "device": "mps",
+    "system_ram_gb": 17.2,
+    "os": "Darwin 25.6.0",
+    "torch": "2.14.1",
+    "python": "3.12.14"
+  },
+  "git": {
+    "commit": "4262874",
+    "dirty": true
+  },
+  "created_utc": "2026-10-05T05:16:46+00:00",
+  "val_predictions": "data/preds/phase2/lr_lr0.001_d1_s2.npy"
+}

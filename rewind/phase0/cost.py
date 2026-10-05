@@ -11,6 +11,7 @@ Every history is full length (no padding), so these are worst-case numbers for e
 
 import argparse
 import gc
+import hashlib
 import json
 import platform
 import statistics
@@ -245,7 +246,19 @@ def git_info() -> dict:
     run always writes one.
     """
     status = _run(["git", "status", "--porcelain", "--", ".", ":!results"])
-    return {"commit": _run(["git", "rev-parse", "--short", "HEAD"]), "dirty": bool(status)}
+    return {"commit": _run(["git", "rev-parse", "--short", "HEAD"]), "dirty": bool(status),
+            "source_sha256": source_fingerprint()}
+
+
+def source_fingerprint() -> str:
+    """One hash over every source file and the dependency lock. Identifies the exact code even
+    when it was not committed, which a commit hash alone cannot (BUGLOG #11)."""
+    root = Path(__file__).resolve().parents[2]
+    files = sorted(root.glob("rewind/**/*.py")) + [root / "pyproject.toml", root / "uv.lock"]
+    h = hashlib.sha256()
+    for f in files:
+        h.update(f"{f.relative_to(root)}:{hashlib.sha256(f.read_bytes()).hexdigest()}\n".encode())
+    return h.hexdigest()
 
 
 def _run(cmd: list[str]) -> str | None:

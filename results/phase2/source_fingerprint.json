@@ -1,0 +1,25 @@
+{
+  "purpose": "Source files exactly as they were for every run in results/phase2/runs/ (all 17 runs, 2026-10-05). The runs were made from uncommitted code, so their git commit (4262874, dirty) does not identify it; these hashes do. No file under rewind/ was modified between the first run and the last.",
+  "combined_sha256": "9861cd5e128d241af34c71e07a338659838abad9ccfdb734990fbae1b115983a",
+  "files": {
+    "rewind/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rewind/baselines/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rewind/baselines/models.py": "ba8fa778e2926ae436f92e7e6ca46f66164451fd508a289d15f5f9d8e84455f3",
+    "rewind/baselines/run.py": "3c225ace300d31e9c5aff21b7bda49c15657216f5700f03d0e821a5c425210c4",
+    "rewind/baselines/train.py": "2baa5877984d413f5ac426fec9c2abec9242d9139c7cc9a948736ef33d0ab883",
+    "rewind/data/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rewind/data/count.py": "f369d20d4eaf747aef57fb2ad828e6480cca6dd4fd926384f199c36feba42d1f",
+    "rewind/data/raw_tables.py": "cb7503e18d400b8980613e27fb82887984d3fcc9dc62c55610376ef3124431b1",
+    "rewind/data/sequences.py": "81e1e902dce34159419db98d6549dc1461839d9983df71a8a8d7cf9892be58e2",
+    "rewind/features/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rewind/features/tabular.py": "95498ddd779be1e5b624aa7941f9e4a949d9500771e03f11c7afb56dc1a2421f",
+    "rewind/metrics.py": "7ad9b623df18b0ba664f83206634268bf8ede8d3dde7dc55103f134d14fb3013",
+    "rewind/model.py": "668647848b3dbfe0d105d00cb00ca1ecb79df440a7679361c9d0a661c0c6435e",
+    "rewind/phase0/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "rewind/phase0/cost.py": "b33d250567286de5adbfcb3aef3318516818b27b42764c75f6bc36fefa8c954f",
+    "rewind/phase0/project.py": "e74f88893e8d53ead785b7c699a51b6f57260514142271542cd5a1254c773468",
+    "rewind/phase0/real_check.py": "4c747d33cad647e84d7b9391a9e7c3dffa03383c3eee31b2740701242b70ca3d",
+    "pyproject.toml": "7f4cdeb89cd78067edec45e6d49b86d91f75d65d6b663770de3ec77dd0c1d55c",
+    "uv.lock": "daf5ba65770f305a575e41754d9eb84ac21214fa85a1c1756fead5b9877c0e9e"
+  }
+}

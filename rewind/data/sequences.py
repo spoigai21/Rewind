@@ -40,6 +40,7 @@ TEST_DAY = date(2017, 5, 13)
 SPLITS = {"train": 0, "val": 1, "test": 2}
 
 AD_ID_COLS = ["adgroup_id", "cate_id", "brand", "campaign_id", "customer", "pid"]
+RAW_ID_COLS = ["adgroup_id", "cate_id", "brand", "campaign_id", "customer"]
 PROFILE_COLS = ["cms_segid", "cms_group_id", "final_gender_code", "age_level", "pvalue_level",
                 "shopping_level", "occupation", "new_user_class_level"]
 
@@ -86,6 +87,14 @@ def build(raw: pl.LazyFrame, ads: pl.LazyFrame, profiles: pl.LazyFrame) -> tuple
     if ev["split"].null_count():
         raise SystemExit(f"{ev['split'].null_count()} impressions fall outside the split days")
 
+    # Keep the original IDs too. The codes below map every ad unseen in training to one shared
+    # UNSEEN code, which is right for an embedding lookup but wrong for counting "how often has
+    # THIS ad been shown before": that needs the real ID. Missing brand becomes -1.
+    ev = ev.with_columns(
+        *[pl.col(c).fill_null(-1).alias(f"raw_{c}") for c in RAW_ID_COLS],
+        pl.col("price").cast(pl.Float32),
+    )
+
     is_train = ev["split"] == SPLITS["train"]
     vocab_sizes = {}
     for col in AD_ID_COLS:
@@ -112,6 +121,8 @@ def build(raw: pl.LazyFrame, ads: pl.LazyFrame, profiles: pl.LazyFrame) -> tuple
         "user_start": ev["user_start"].to_numpy().astype(np.int64),
         "hist_end": ev["hist_end"].to_numpy().astype(np.int64),
         **{c: ev[c].to_numpy().astype(np.int32) for c in AD_ID_COLS + PROFILE_COLS},
+        **{f"raw_{c}": ev[f"raw_{c}"].to_numpy().astype(np.int64) for c in RAW_ID_COLS},
+        "price": ev["price"].to_numpy().astype(np.float32),
     }
     return cols, vocab_sizes
 
