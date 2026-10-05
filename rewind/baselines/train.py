@@ -45,7 +45,8 @@ class Data:
 
 
 def train_one(data: Data, model_name: str, lr: float, dim: int, seed: int, device: torch.device,
-              batch_size: int = 4096, log_every: int = 500, max_batches: int | None = None) -> tuple[dict, np.ndarray]:
+              batch_size: int = 4096, log_every: int = 500, max_batches: int | None = None,
+              checkpoint: Path | None = None) -> tuple[dict, np.ndarray]:
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
     cards, n_num = data.meta["cat_cardinalities"], len(data.meta["num_features"])
@@ -91,6 +92,12 @@ def train_one(data: Data, model_name: str, lr: float, dim: int, seed: int, devic
         "final_train_loss_last_500": float(np.mean(running[-500:])),
         "metrics": metrics,
     }
+    if checkpoint:
+        # Phase 3: saved so the one-time test-day comparison can score this exact model.
+        checkpoint.parent.mkdir(parents=True, exist_ok=True)
+        torch.save({"state_dict": model.state_dict(), "model": model_name, "dim": dim,
+                    "cardinalities": cards, "n_num": n_num}, checkpoint)
+        result["checkpoint"] = str(checkpoint)
     return result, p
 
 
@@ -127,13 +134,19 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--device", default="mps")
     ap.add_argument("--batch-size", type=int, default=4096)
+    ap.add_argument("--checkpoint-dir", type=Path, default=None, help="save trained weights here")
+    ap.add_argument("--runs-dir", type=Path, default=Path("results/phase2/runs"))
+    ap.add_argument("--preds-dir", type=Path, default=Path("data/preds/phase2"))
     args = ap.parse_args()
     device = torch.device(args.device)
     git = git_info()
     data = Data()
-    result, preds = train_one(data, args.model, args.lr, args.dim, args.seed, device, args.batch_size)
+    name = f"{args.model}_lr{args.lr:g}_d{args.dim}_s{args.seed}"
+    ckpt = args.checkpoint_dir / f"{name}.pt" if args.checkpoint_dir else None
+    result, preds = train_one(data, args.model, args.lr, args.dim, args.seed, device, args.batch_size,
+                              checkpoint=ckpt)
     print(json.dumps(result["metrics"]["val"], indent=2))
-    print(f"wrote {save_run(result, preds, device, git)}")
+    print(f"wrote {save_run(result, preds, device, git, args.runs_dir, args.preds_dir)}")
 
 
 if __name__ == "__main__":

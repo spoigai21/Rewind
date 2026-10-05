@@ -144,8 +144,16 @@ def main() -> None:
     ap.add_argument("--seq-dir", type=Path, default=Path("data/sequences"))
     ap.add_argument("--out-dir", type=Path, default=Path("data/features"))
     args = ap.parse_args()
+    num_names = build_features(args.seq_dir, args.out_dir)
+    print(f"{len(num_names)} numeric + {len(CAT_FEATURES)} categorical features")
+    for n in num_names:
+        print(" ", n)
+    print(f"wrote {args.out_dir}/")
 
-    cols = load(args.seq_dir)
+
+def build_features(seq_dir: Path, out_dir: Path) -> list[str]:
+    """Build and save num.npy, cat.npy and meta.json from a Phase 1 sequence directory."""
+    cols = load(seq_dir)
     train = np.asarray(cols["split"]) == SPLITS["train"]
     base_rate = float(np.asarray(cols["clk"])[train].mean())
 
@@ -155,9 +163,9 @@ def main() -> None:
     num, norm = standardize(num, train)
     cat = np.stack([np.asarray(cols[c]) for c in CAT_FEATURES], axis=1).astype(np.int32)
 
-    args.out_dir.mkdir(parents=True, exist_ok=True)
-    np.save(args.out_dir / "num.npy", num)
-    np.save(args.out_dir / "cat.npy", cat)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    np.save(out_dir / "num.npy", num)
+    np.save(out_dir / "cat.npy", cat)
     meta = {
         "rows": int(len(num)),
         "num_features": num_names,
@@ -170,11 +178,8 @@ def main() -> None:
         "normalization_from": "training rows only",
         "normalization": norm,
     }
-    (args.out_dir / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
-    print(f"{len(num):,} rows, {len(num_names)} numeric + {len(CAT_FEATURES)} categorical features")
-    for n in num_names:
-        print(" ", n)
-    print(f"wrote {args.out_dir}/")
+    (out_dir / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
+    return num_names
 
 
 if __name__ == "__main__":

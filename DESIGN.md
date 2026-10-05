@@ -66,4 +66,37 @@ slices: impressions with no earlier impression, and with 256 or more.
 ## Sequence model (Phase 3)
 
 Behavior Sequence Transformer: Chen et al., 2019, *Behavior Sequence Transformer for E-commerce
-Recommendation in Alibaba*. `rewind/model.py`. Its inputs are adapted to this data in Phase 3.
+Recommendation in Alibaba*. `rewind/sequence/model.py`, built on the tested attention block and
+mask in `rewind/model.py`.
+
+- **Input:** the user's last 64 earlier impressions (strictly earlier seconds), oldest to newest,
+  left-padded, then the candidate ad.
+- **One history token** = a projection of the 16-wide ID embeddings (ad, category, brand,
+  campaign, advertiser, placement) + an action embedding (shown-not-clicked / clicked) + a
+  time-gap embedding (13 buckets, under a minute to 4+ days) + a position embedding counted
+  backwards from the candidate. The candidate token has its own action value and no time gap.
+- **Transformer:** pre-norm blocks, causal attention that also ignores padding.
+- **Output:** the candidate's output vector, concatenated with the profile embeddings and the
+  context features (the same `ctx_*` features the tabular models get), through an MLP to one logit.
+- **Not an input:** the tabular history totals (`hist_*`). The ordered timeline replaces them.
+
+**Matched to DCN:** the ID embedding tables are the same vocabularies at the same width, so the
+two families have identical tables (23,849,952 parameters). The prediction head is sized so the
+dense parameters match DCN's 1,364,049 to within 0.1%. The extra action, time-gap and position
+tables (5-11K parameters) are reported separately.
+
+**Batches are built on the GPU** (`rewind/sequence/data.py`): one compact per-impression table plus
+the Phase 1 bookmarks live in device memory, and each batch is a few indexing operations. Leading
+columns that are padding in every row are dropped; because positions count backwards from the
+candidate, this changes no prediction (tested).
+
+**Tuning:** the same protocol and budget as the baselines (`rewind/sequence/run.py`): 4
+configurations (learning rate {1e-3, 3e-4} x {width 64 / 2 layers, width 128 / 3 layers}), seed 0,
+selected on validation log loss, then 2 more seeds.
+
+## The test-day comparison
+
+`rewind/compare/final.py` scores 3 sequence and 3 DCN checkpoints on the same rows. Per metric:
+**win** if the sequence model's worst seed beats DCN's best seed, **loss** if the reverse, **tie** if
+the ranges overlap. Opening the test day is recorded in `results/phase3/test_day_opened.json`, and a
+second opening is refused unless a reason is given and logged. Run procedure: `GPU.md`.

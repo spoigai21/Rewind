@@ -119,10 +119,14 @@ def _attention_mask(hist_items: torch.Tensor) -> torch.Tensor:
     Every token may always see itself, so a padding row is never fully masked; a fully masked row
     makes softmax return NaN, and that NaN would leak into real tokens in the next layer.
     """
-    T = hist_items.shape[1] + 1
-    device = hist_items.device
+    return attention_mask(~_pad_mask(hist_items))
+
+
+def attention_mask(key_is_real: torch.Tensor) -> torch.Tensor:
+    """The mask above, from a (B, T) boolean of which tokens are real (not padding)."""
+    T = key_is_real.shape[1]
+    device = key_is_real.device
     causal = torch.ones(T, T, dtype=torch.bool, device=device).tril()
-    key_is_real = ~_pad_mask(hist_items)  # (B, T)
     self_ok = torch.eye(T, dtype=torch.bool, device=device)
     allowed = causal & (key_is_real[:, None, :] | self_ok)
     return allowed.unsqueeze(1)
