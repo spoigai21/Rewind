@@ -34,29 +34,39 @@ def main() -> None:
     ap.add_argument("--steps", type=int, default=20, help="timed steps per length")
     ap.add_argument("--n-items", type=int, default=SeqConfig.n_items)
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument(
+        "--max-step-s", type=float, default=15.0,
+        help="give up on a length if one training step takes longer than this (memory swapping)",
+    )
     ap.add_argument("--out", type=Path, default=None)
     args = ap.parse_args()
 
     device = torch.device(args.device)
     hw = hardware_info(device)
-    out = args.out or Path("results/phase0") / f"cost_{hw['lane']}.json"
+    out = args.out or Path("results/phase0") / f"cost_{hw['lane']}_b{args.batch_size}.json"
 
     print(f"lane: {hw['lane']}  ({hw['chip']}, torch {hw['torch']})")
     print(f"batch {args.batch_size}, {args.steps} timed steps after {args.warmup} warmup, seed {args.seed}\n")
     print(f"{'len':>6} {'train ms/step':>14} {'train ex/s':>11} {'infer ms/batch':>15} {'infer ex/s':>11} {'mem GB':>7}")
 
+    # The first GPU run in a process pays one-off costs (compiling GPU programs, growing memory
+    # pools) that a few warmup steps do not fully absorb. One throwaway length soaks them up so
+    # they are not billed to whichever length happens to be measured first.
+    measure_length(min(args.lengths), args, device)
+
     rows = []
     for L in args.lengths:
         row = measure_length(L, args, device)
         rows.append(row)
-        if row["status"] == "oom":
-            print(f"{L:>6}  out of memory; stopping")
+        if row["status"] != "ok":
+            print(f"{L:>6}  {row['status']}; stopping")
             break
         t, i = row["train"], row["infer"]
         mem = row["peak_mem_gb"]
         print(
             f"{L:>6} {t['ms_median']:>14.1f} {t['examples_per_s']:>11.0f} "
             f"{i['ms_median']:>15.1f} {i['examples_per_s']:>11.0f} {mem if mem is not None else '-':>7}"
+            + ("  UNSTABLE TIMING" if row["unstable_timing"] else "")
         )
 
     result = {
@@ -107,7 +117,11 @@ def measure_length(L: int, args, device: torch.device) -> dict:
             opt.zero_grad(set_to_none=True)
 
         model.train()
-        train_ms = timed(train_step, args.warmup, args.steps, device)
+        try:
+            train_ms = timed(train_step, args.warmup, args.steps, device, args.max_step_s)
+        except TooSlow:
+            row["status"] = "too_slow"
+            return row
         peak = peak_memory_gb(device)
 
         model.eval()
@@ -117,6 +131,10 @@ def measure_length(L: int, args, device: torch.device) -> dict:
         row["train"] = summarize(train_ms, B)
         row["infer"] = summarize(infer_ms, B)
         row["peak_mem_gb"] = peak
+        # Steady GPU work gives similar step times, so a typical (median) step far slower than the
+        # fastest means most steps were disturbed, usually by the OS swapping memory to disk. One
+        # slow outlier does not trip this. Flagged rows are excluded from extrapolation.
+        row["unstable_timing"] = row["train"]["ms_median"] > 1.5 * row["train"]["ms_min"]
     except RuntimeError as e:
         if "out of memory" not in str(e).lower():
             raise
@@ -130,21 +148,27 @@ def measure_length(L: int, args, device: torch.device) -> dict:
     return row
 
 
-def timed(fn, warmup: int, steps: int, device: torch.device) -> list[float]:
+class TooSlow(Exception):
+    pass
+
+
+def timed(fn, warmup: int, steps: int, device: torch.device, max_s: float = float("inf")) -> list[float]:
     """Run fn warmup+steps times; return wall-clock ms for each timed run.
 
     GPUs run asynchronously: a call returns before the work finishes. sync() waits for the GPU
-    so each timing covers the real work, not just the time to queue it.
+    so each timing covers the real work, not just the time to queue it. Any single run, warmup
+    included, longer than max_s raises TooSlow.
     """
-    for _ in range(warmup):
-        fn()
-    sync(device)
     times = []
-    for _ in range(steps):
+    for i in range(warmup + steps):
         t0 = time.perf_counter()
         fn()
         sync(device)
-        times.append((time.perf_counter() - t0) * 1000)
+        elapsed = time.perf_counter() - t0
+        if elapsed > max_s:
+            raise TooSlow
+        if i >= warmup:
+            times.append(elapsed * 1000)
     return times
 
 
@@ -197,11 +221,13 @@ def hardware_info(device: torch.device) -> dict:
         chip = _run(["sysctl", "-n", "machdep.cpu.brand_string"]) or platform.processor()
     else:
         chip = platform.processor() or platform.machine()
+    ram = _run(["sysctl", "-n", "hw.memsize"]) if platform.system() == "Darwin" else None
     lane = f"{chip.lower().replace('apple ', '').replace(' ', '-')}-{device.type}"
     return {
         "lane": lane,
         "chip": chip,
         "device": device.type,
+        "system_ram_gb": round(int(ram) / 1e9, 1) if ram else None,
         "os": f"{platform.system()} {platform.release()}",
         "torch": torch.__version__,
         "python": platform.python_version(),
@@ -209,10 +235,14 @@ def hardware_info(device: torch.device) -> dict:
 
 
 def git_info() -> dict:
-    return {
-        "commit": _run(["git", "rev-parse", "--short", "HEAD"]),
-        "dirty": bool(_run(["git", "status", "--porcelain", "--untracked-files=no"])),
-    }
+    """The commit that produced a result, and whether the code differed from it.
+
+    "dirty" covers uncommitted edits AND new files nobody has added yet: code that exists only
+    on this laptop cannot be reproduced from the commit hash. Results files are excluded, since a
+    run always writes one.
+    """
+    status = _run(["git", "status", "--porcelain", "--", ".", ":!results"])
+    return {"commit": _run(["git", "rev-parse", "--short", "HEAD"]), "dirty": bool(status)}
 
 
 def _run(cmd: list[str]) -> str | None:

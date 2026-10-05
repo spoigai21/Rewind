@@ -1,0 +1,212 @@
+{
+  "experiment": "phase0_sweep_projection",
+  "inputs": [
+    "results/phase0/cost_m5-mps_b32.json",
+    "results/phase0/cost_m5-mps_b8.json"
+  ],
+  "measured_ms_per_example": {
+    "16": {
+      "batch": 32,
+      "min": 0.47921875,
+      "median": 0.50065625,
+      "unstable_timing": false,
+      "source": "cost_m5-mps_b32.json"
+    },
+    "32": {
+      "batch": 32,
+      "min": 0.489625,
+      "median": 0.524625,
+      "unstable_timing": false,
+      "source": "cost_m5-mps_b32.json"
+    },
+    "64": {
+      "batch": 32,
+      "min": 0.5679375,
+      "median": 1.20559375,
+      "unstable_timing": true,
+      "source": "cost_m5-mps_b32.json"
+    },
+    "128": {
+      "batch": 32,
+      "min": 0.95975,
+      "median": 1.35365625,
+      "unstable_timing": false,
+      "source": "cost_m5-mps_b32.json"
+    },
+    "256": {
+      "batch": 32,
+      "min": 0.94253125,
+      "median": 1.83446875,
+      "unstable_timing": true,
+      "source": "cost_m5-mps_b32.json"
+    },
+    "512": {
+      "batch": 32,
+      "min": 1.9055,
+      "median": 1.963,
+      "unstable_timing": false,
+      "source": "cost_m5-mps_b32.json"
+    },
+    "1024": {
+      "batch": 32,
+      "min": 6.0571875,
+      "median": 9.48665625,
+      "unstable_timing": true,
+      "source": "cost_m5-mps_b32.json"
+    },
+    "2048": {
+      "batch": 8,
+      "min": 21.284125,
+      "median": 23.28475,
+      "unstable_timing": false,
+      "source": "cost_m5-mps_b8.json"
+    }
+  },
+  "descriptive_fit_on_fastest": {
+    "a": 0.4842465416719025,
+    "b": 0.0009411070854138987,
+    "c": 4.2708581840327285e-06
+  },
+  "sweep_plan": {
+    "train_examples": 19500000,
+    "epochs": 1,
+    "seeds": 3,
+    "lengths": [
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "overhead": 1.5
+  },
+  "assumed_speedup_vs_laptop": {
+    "low": 5.0,
+    "mid": 10.0,
+    "high": 15.0
+  },
+  "assumed_price_per_hour_usd": {
+    "low": 1.0,
+    "mid": 1.75,
+    "high": 2.5
+  },
+  "per_length": [
+    {
+      "seq_len": 16,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        11.7,
+        12.2
+      ],
+      "a100_hours": [
+        0.8,
+        2.4
+      ]
+    },
+    {
+      "seq_len": 32,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        11.9,
+        12.8
+      ],
+      "a100_hours": [
+        0.8,
+        2.6
+      ]
+    },
+    {
+      "seq_len": 64,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        13.8,
+        29.4
+      ],
+      "a100_hours": [
+        0.9,
+        5.9
+      ]
+    },
+    {
+      "seq_len": 128,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        23.4,
+        33.0
+      ],
+      "a100_hours": [
+        1.6,
+        6.6
+      ]
+    },
+    {
+      "seq_len": 256,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        23.0,
+        44.7
+      ],
+      "a100_hours": [
+        1.5,
+        8.9
+      ]
+    },
+    {
+      "seq_len": 512,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        46.4,
+        47.8
+      ],
+      "a100_hours": [
+        3.1,
+        9.6
+      ]
+    },
+    {
+      "seq_len": 1024,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        147.6,
+        231.2
+      ],
+      "a100_hours": [
+        9.8,
+        46.2
+      ]
+    },
+    {
+      "seq_len": 2048,
+      "measured_at_batch": 8,
+      "source": "cost_m5-mps_b8.json",
+      "laptop_hours": [
+        518.8,
+        567.6
+      ],
+      "a100_hours": [
+        34.6,
+        113.5
+      ]
+    }
+  ],
+  "total_a100_hours": {
+    "best": 53.1,
+    "mid": 97.9,
+    "worst": 195.7
+  },
+  "total_usd": {
+    "best": 53,
+    "mid": 171,
+    "worst": 489
+  }
+}

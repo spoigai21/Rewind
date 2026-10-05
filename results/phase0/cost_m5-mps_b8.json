@@ -1,0 +1,114 @@
+{
+  "experiment": "phase0_cost_vs_length",
+  "synthetic_inputs": true,
+  "padding": "none (every history full length; worst case)",
+  "hardware": {
+    "lane": "m5-mps",
+    "chip": "Apple M5",
+    "device": "mps",
+    "system_ram_gb": 17.2,
+    "os": "Darwin 25.6.0",
+    "torch": "2.14.1",
+    "python": "3.12.14"
+  },
+  "git": {
+    "commit": "bef8eaf",
+    "dirty": true
+  },
+  "created_utc": "2026-10-04T21:24:37+00:00",
+  "config": {
+    "batch_size": 8,
+    "warmup_steps": 5,
+    "timed_steps": 20,
+    "seed": 0,
+    "model": {
+      "n_items": 262144,
+      "n_actions": 4,
+      "d_model": 64,
+      "n_heads": 2,
+      "n_layers": 2,
+      "dropout": 0.1
+    },
+    "optimizer": "AdamW lr=1e-3"
+  },
+  "rows": [
+    {
+      "seq_len": 512,
+      "params": {
+        "total": 16914689,
+        "embedding": 16810368,
+        "dense": 104321
+      },
+      "status": "ok",
+      "train": {
+        "ms_median": 57.472,
+        "ms_min": 40.281,
+        "ms_max": 137.452,
+        "examples_per_s": 139.2
+      },
+      "infer": {
+        "ms_median": 4.216,
+        "ms_min": 3.156,
+        "ms_max": 7.683,
+        "examples_per_s": 1897.4
+      },
+      "peak_mem_gb": 1.093,
+      "unstable_timing": false
+    },
+    {
+      "seq_len": 1024,
+      "params": {
+        "total": 16947457,
+        "embedding": 16843136,
+        "dense": 104321
+      },
+      "status": "ok",
+      "train": {
+        "ms_median": 77.705,
+        "ms_min": 57.294,
+        "ms_max": 247.103,
+        "examples_per_s": 103.0
+      },
+      "infer": {
+        "ms_median": 10.886,
+        "ms_min": 6.16,
+        "ms_max": 14.013,
+        "examples_per_s": 734.9
+      },
+      "peak_mem_gb": 1.099,
+      "unstable_timing": false
+    },
+    {
+      "seq_len": 2048,
+      "params": {
+        "total": 17012993,
+        "embedding": 16908672,
+        "dense": 104321
+      },
+      "status": "ok",
+      "train": {
+        "ms_median": 186.278,
+        "ms_min": 170.273,
+        "ms_max": 541.905,
+        "examples_per_s": 42.9
+      },
+      "infer": {
+        "ms_median": 49.2,
+        "ms_min": 17.061,
+        "ms_max": 77.668,
+        "examples_per_s": 162.6
+      },
+      "peak_mem_gb": 3.248,
+      "unstable_timing": false
+    },
+    {
+      "seq_len": 4096,
+      "params": {
+        "total": 17144065,
+        "embedding": 17039744,
+        "dense": 104321
+      },
+      "status": "too_slow"
+    }
+  ]
+}
