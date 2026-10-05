@@ -9,3 +9,6 @@ __pycache__/
 
 # Raw and processed data never go in git
 /data/
+
+# macOS folder metadata
+.DS_Store

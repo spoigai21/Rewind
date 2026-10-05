@@ -21,6 +21,9 @@ from rewind.data.raw_tables import SCHEMAS, TZ, to_parquet
 
 QUANTILES = [0.1, 0.25, 0.5, 0.75, 0.9, 0.99]
 
+# Tables the count can run without. The Kaggle copy of the dataset ships without behavior_log.
+OPTIONAL = {"behavior_log"}
+
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -32,6 +35,9 @@ def main() -> None:
     tables = {}
     for stem in SCHEMAS:
         out = args.parquet_dir / f"{stem}.parquet"
+        if stem in OPTIONAL and not out.exists() and not any(stem in p.name for p in args.raw_dir.iterdir()):
+            print(f"{stem}: not present in {args.raw_dir}; skipped")
+            continue
         if out.exists():
             print(f"{stem}: using existing {out}")
         else:
@@ -52,10 +58,11 @@ def main() -> None:
 def count_all(t: dict[str, pl.LazyFrame]) -> dict:
     return {
         "timezone_for_days": TZ,
+        "tables_present": sorted(t),
         "raw_sample": count_impressions(t["raw_sample"]),
         "ad_feature": count_table(t["ad_feature"], key="adgroup_id"),
         "user_profile": count_table(t["user_profile"], key="userid"),
-        "behavior_log": count_behaviour(t["behavior_log"]),
+        "behavior_log": count_behaviour(t["behavior_log"]) if "behavior_log" in t else None,
         "overlap": count_overlap(t),
     }
 
@@ -109,7 +116,39 @@ def count_impressions(lf: pl.LazyFrame) -> dict:
     )
     out["per_day"] = per_day.to_dicts()
     out["pid_counts"] = collect(lf.group_by("pid").len().sort("pid")).to_dicts()
+    out["impressions_per_user"] = quantiles(collect(lf.group_by("user").len())["len"])
+    out["prior_impressions"] = count_prior_impressions(lf)
     return out
+
+
+def count_prior_impressions(lf: pl.LazyFrame) -> dict:
+    """For each impression, how many of the same user's impressions came STRICTLY earlier.
+
+    This is the history available if sequences are built from ad impressions alone. Impressions
+    in the same second as the current one do not count: they were shown together (one page load),
+    so they are not "before" it, and counting them would let the model see its own context.
+    """
+    prior = collect(
+        lf.select(
+            (pl.col("time_stamp").rank("min").over("user") - 1).alias("prior"),
+        )
+    )["prior"]
+    return {
+        **quantiles(prior),
+        "share_with_0": (prior == 0).mean(),
+        "share_with_at_least_16": (prior >= 16).mean(),
+        "share_with_at_least_64": (prior >= 64).mean(),
+        "share_with_at_least_256": (prior >= 256).mean(),
+    }
+
+
+def quantiles(s: pl.Series) -> dict:
+    return {
+        "n": s.len(),
+        "mean": s.mean(),
+        **{f"p{int(q * 100)}": s.quantile(q, "nearest") for q in QUANTILES},
+        "max": s.max(),
+    }
 
 
 def count_behaviour(lf: pl.LazyFrame) -> dict:
@@ -117,13 +156,7 @@ def count_behaviour(lf: pl.LazyFrame) -> dict:
     out["time_range"] = time_range(lf)
     out["btag_counts"] = collect(lf.group_by("btag").len().sort("len", descending=True)).to_dicts()
     out["per_day"] = collect(with_day(lf).group_by("day").len().sort("day")).to_dicts()
-    per_user = collect(lf.group_by("user").len())["len"]
-    out["actions_per_user"] = {
-        "users": per_user.len(),
-        "mean": per_user.mean(),
-        **{f"p{int(q * 100)}": per_user.quantile(q, "nearest") for q in QUANTILES},
-        "max": per_user.max(),
-    }
+    out["actions_per_user"] = quantiles(collect(lf.group_by("user").len())["len"])
     return out
 
 
@@ -142,7 +175,7 @@ def count_overlap(t: dict[str, pl.LazyFrame]) -> dict:
         "impressions": n,
         "share_with_ad_features": share(t["ad_feature"], "adgroup_id", "adgroup_id"),
         "share_with_user_profile": share(t["user_profile"], "user", "userid"),
-        "share_with_any_behaviour": share(t["behavior_log"], "user", "user"),
+        "share_with_any_behaviour": share(t["behavior_log"], "user", "user") if "behavior_log" in t else None,
     }
 
 

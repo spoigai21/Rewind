@@ -81,7 +81,7 @@ def test_overlap_between_tables(counts):
 
 def test_actions_per_user(counts):
     apu = counts["behavior_log"]["actions_per_user"]
-    assert apu["users"] == 2
+    assert apu["n"] == 2
     assert apu["max"] == 3
 
 
@@ -91,3 +91,37 @@ def test_header_mismatch_stops_the_run(tmp_path: Path):
     (raw / "ad_feature.csv").write_text("adgroup_id,cate_id,brand\n1,2,3\n")
     with pytest.raises(SystemExit, match="header differs"):
         to_parquet(raw, tmp_path / "pq", "ad_feature")
+
+
+def test_prior_impressions_count_only_strictly_earlier(counts):
+    # User 1: two impressions in the same second -> neither is "before" the other -> 0 and 0.
+    # User 2: one impression -> 0. User 3: one impression -> 0.
+    prior = counts["raw_sample"]["prior_impressions"]
+    assert prior["max"] == 0
+    assert prior["share_with_0"] == 1.0
+
+
+def test_runs_without_behaviour_log(tmp_path: Path):
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    for name, lines in FILES.items():
+        if name != "behavior_log.csv":
+            (raw / name).write_text("\n".join(lines) + "\n")
+    tables = {stem: pl.scan_parquet(to_parquet(raw, tmp_path / "pq", stem))
+              for stem in ("raw_sample", "ad_feature", "user_profile")}
+    c = count_all(tables)
+    assert c["behavior_log"] is None
+    assert c["overlap"]["share_with_any_behaviour"] is None
+    assert c["raw_sample"]["rows"] == 4
+
+
+def test_prior_impressions_with_real_history():
+    # User 1 sees ads at t=10 (two at once), 20, 30; user 2 at t=5 and 15.
+    # Strictly-earlier counts: user 1 -> 0, 0, 2, 3; user 2 -> 0, 1.
+    from rewind.data.count import count_prior_impressions
+
+    lf = pl.LazyFrame({"user": [1, 1, 1, 1, 2, 2], "time_stamp": [10, 10, 20, 30, 15, 5]})
+    prior = count_prior_impressions(lf)
+    assert prior["max"] == 3
+    assert prior["share_with_0"] == pytest.approx(3 / 6)
+    assert prior["mean"] == pytest.approx((0 + 0 + 2 + 3 + 0 + 1) / 6)
