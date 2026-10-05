@@ -68,7 +68,7 @@
     "c": 5.113471367504956e-06
   },
   "sweep_plan": {
-    "train_examples": 19500000,
+    "train_examples": 20015245,
     "epochs": 1,
     "seeds": 3,
     "lengths": [
@@ -77,9 +77,7 @@
       64,
       128,
       256,
-      512,
-      1024,
-      2048
+      512
     ],
     "overhead": 1.5
   },
@@ -99,33 +97,7 @@
       "measured_at_batch": 32,
       "source": "cost_m5-mps_b32.json",
       "laptop_hours": [
-        11.3,
-        11.7
-      ],
-      "a100_hours": [
-        0.8,
-        2.3
-      ]
-    },
-    {
-      "seq_len": 32,
-      "measured_at_batch": 32,
-      "source": "cost_m5-mps_b32.json",
-      "laptop_hours": [
-        11.4,
-        12.1
-      ],
-      "a100_hours": [
-        0.8,
-        2.4
-      ]
-    },
-    {
-      "seq_len": 64,
-      "measured_at_batch": 32,
-      "source": "cost_m5-mps_b32.json",
-      "laptop_hours": [
-        11.8,
+        11.6,
         12.0
       ],
       "a100_hours": [
@@ -134,16 +106,42 @@
       ]
     },
     {
+      "seq_len": 32,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        11.7,
+        12.4
+      ],
+      "a100_hours": [
+        0.8,
+        2.5
+      ]
+    },
+    {
+      "seq_len": 64,
+      "measured_at_batch": 32,
+      "source": "cost_m5-mps_b32.json",
+      "laptop_hours": [
+        12.1,
+        12.3
+      ],
+      "a100_hours": [
+        0.8,
+        2.5
+      ]
+    },
+    {
       "seq_len": 128,
       "measured_at_batch": 32,
       "source": "cost_m5-mps_b32.json",
       "laptop_hours": [
-        14.2,
-        15.5
+        14.6,
+        15.9
       ],
       "a100_hours": [
-        0.9,
-        3.1
+        1.0,
+        3.2
       ]
     },
     {
@@ -151,12 +149,12 @@
       "measured_at_batch": 32,
       "source": "cost_m5-mps_b32.json",
       "laptop_hours": [
-        21.3,
-        22.6
+        21.8,
+        23.2
       ],
       "a100_hours": [
-        1.4,
-        4.5
+        1.5,
+        4.6
       ]
     },
     {
@@ -164,49 +162,23 @@
       "measured_at_batch": 32,
       "source": "cost_m5-mps_b32.json",
       "laptop_hours": [
-        47.0,
-        52.3
+        48.3,
+        53.7
       ],
       "a100_hours": [
-        3.1,
-        10.5
-      ]
-    },
-    {
-      "seq_len": 1024,
-      "measured_at_batch": 32,
-      "source": "cost_m5-mps_b32.json",
-      "laptop_hours": [
-        148.8,
-        175.3
-      ],
-      "a100_hours": [
-        9.9,
-        35.1
-      ]
-    },
-    {
-      "seq_len": 2048,
-      "measured_at_batch": 8,
-      "source": "cost_m5-mps_b8.json",
-      "laptop_hours": [
-        552.5,
-        638.0
-      ],
-      "a100_hours": [
-        36.8,
-        127.6
+        3.2,
+        10.7
       ]
     }
   ],
   "total_a100_hours": {
-    "best": 54.6,
-    "mid": 93.9,
-    "worst": 187.9
+    "best": 8.0,
+    "mid": 13.0,
+    "worst": 25.9
   },
   "total_usd": {
-    "best": 55,
-    "mid": 164,
-    "worst": 470
+    "best": 8,
+    "mid": 23,
+    "worst": 65
   }
 }

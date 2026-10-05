@@ -4,6 +4,10 @@
 either a laptop measurement on synthetic inputs, or a guess made in advance so it can be checked.
 Being wrong here is expected and will be reported, not edited away.
 
+**Amended 2026-10-04, same day, before any model touched real data:** the dataset turned out to
+lack its behaviour log, which changes the sweep and several predictions. Sections 1-4 are left
+exactly as first written; **section 5 records what changed and which predictions it replaces.**
+
 ---
 
 ## 1. What was measured
@@ -148,3 +152,96 @@ tabular model on the same GPU.** If P1 holds (a small win), that ratio is the ho
 - **Synthetic-only so far.** Phase 0 also asks for one small real-data run to confirm that real
   inputs cost what synthetic ones do. **That run is still outstanding and must happen before any GPU
   is rented**; it needs the dataset downloaded.
+
+---
+
+## 5. Amendment — 2026-10-04, after counting the data, before any training
+
+### What changed
+
+The only copy of the Taobao display-ad log obtainable without entering payment details is a
+third-party mirror on Kaggle. It contains the impressions, ad features and user profiles, but
+**not the 22-day behaviour log** (browse / cart / favourite / buy). Counted in
+`results/phase1/counts.json`; described in `DATASET.md`.
+
+So a user's history can only be **the ads they were shown earlier, and whether they clicked
+them**, over at most 8 days. Counted at the moment of each impression (strictly earlier seconds
+only):
+
+| Earlier impressions | Value |
+|---|---:|
+| Median | 26 |
+| 90th percentile | 298 |
+| 99th percentile | 941 |
+| Share of impressions with none | 14.0% |
+| Share with at least 16 / 32 / 64 | 59.5% / 45.5% / 32.0% |
+| Share with at least 128 / 256 / 512 | 21.1% / 11.9% / 4.4% |
+| Share with at least 1024 | 0.8% |
+
+### New sweep and cost
+
+**Plan:** lengths 16, 32, ..., 512 (6 lengths) x 3 seeds x **20,015,245** training impressions
+(counted: 2017-05-06 to 05-11) x 1 epoch, plus 50% overhead. Lengths past 512 are dropped: a length-1024 run could differ from
+the 512 run only on the 4.4% of impressions with more than 512 earlier impressions, and would pay
+for padding on the other 95.6%.
+
+**Predicted: 8 - 26 A100 hours, $8 - $65, mid estimate ~13 hours and ~$23.**
+(`results/phase0/projection.json`, same laptop measurements as section 1, same assumptions as
+section 2.) On the laptop alone the sweep would take roughly 120-130 hours.
+
+The section 2 rule about L = 2048 no longer applies. The first-rented-hour rule stands, with the
+stop threshold lowered from $500 to **$100**, in proportion to the smaller plan.
+
+Assumption 4 (no length bucketing) now matters more: with a median of 26 earlier impressions,
+padding every example to 512 wastes most of the compute at the long end. Bucketing is a cost
+optimisation that does not change results, so it may be added before renting without amending
+these predictions.
+
+### Predictions: which stand, which are replaced
+
+**P1 — replaced.** The history is now the same kind of information the tabular baseline's
+aggregates are built from (past ads and clicks), and it is short. **Predicted: a tie or a very
+small win.** AUC +0.001 to +0.006 over the strongest tabular baseline, best guess +0.003; NE
+0.1-0.6% lower. Confidence: win 45%, tie 45%, loss 10%. The expected absolute AUC range
+(0.62-0.66) stands.
+
+**P2 — stands.** Additional detail from the counts: the click rate on the validation day is 4.93%
+and on the test day 5.03%, against 5.14% overall, so both families should show a small, similar
+calibration drift between days.
+
+**P3 — replaced.** **Predicted: most of the gain arrives by length 32-64, and the curve is flat by
+128** when measured over all impressions. **Recommended operating point: 64.** Going past 128 can
+only change predictions for the 21% of impressions with more than 128 earlier impressions, so the
+overall curve flattens partly by construction. To keep that from hiding a real effect, quality will also be reported for
+impressions with at least 256 earlier impressions; **predicted: within that group, 64 -> 512 still
+gains about +0.003 AUC.**
+
+**P4 — stands.**
+
+**P5 — cannot be scored as written, recorded as a miss in spirit.** It predicted a median of ~200
+earlier *behaviour-log actions*, which this data does not have. The nearest available quantity,
+earlier *ad impressions*, has a median of 26, about 8x lower than the predicted history size. It is
+not edited away.
+
+**P6 — stands,** evaluated at the recommended length (now 64) instead of 128.
+
+**New — P7: impressions with no history.** 14% of impressions have no earlier impression. There the
+sequence model has only the candidate ad to go on. **Predicted: on that slice the sequence model is
+no better than the tabular model, and possibly slightly worse** (the tabular model still has user
+profile features; the sequence model as planned does not). This will be reported as its own row.
+
+### Risks: updated
+
+- **Resolved:** "tokens are categories and brands, not items." Past impressions carry the real ad
+  ID, plus its category, brand, campaign and advertiser from `ad_feature`.
+- **New: ads arrive in page loads.** 98.7% of impressions share their exact second with other
+  impressions for the same user (groups of mostly 3 or 10 ads). Ads from the same page load must
+  never be each other's history, and no feature may reveal whether a neighbouring ad on the same
+  page was clicked.
+- **New: Phase 5 has no second label.** The impression log labels clicks only, and without the
+  behaviour log there are no cart or purchase targets. Phase 5 needs rethinking (for example the two
+  ad placements, `pid`, as two tasks); to be decided with the project owner before Phase 5 starts.
+- **Stands:** what "matched parameter count" means (embedding vs dense parameters).
+- **Stands:** the real-data cost check is still outstanding and must happen before any GPU is
+  rented.
+

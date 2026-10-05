@@ -23,13 +23,15 @@ from pathlib import Path
 
 import numpy as np
 
-# The Phase 4 sweep. Dataset sizes are the PUBLISHED figures for the Taobao display-ad log and
-# have not been counted yet; the projection must be rerun once Phase 1 counts them.
+# The Phase 4 sweep.
 SWEEP = {
-    "train_examples": 19_500_000,  # ~26M published impressions x 6 of 8 days used for training
+    # Counted (results/phase1/counts.json): impressions on 2017-05-06..11, the training days.
+    "train_examples": 20_015_245,
     "epochs": 1,  # click models usually overfit after one pass over the data
     "seeds": 3,  # differences between lengths may be small enough to need repeats
-    "lengths": [16, 32, 64, 128, 256, 512, 1024, 2048],
+    # Histories are a user's earlier ad impressions: median 26, 11.9% reach 256 and 4.4% reach
+    # 512, so lengths past 512 would be almost entirely padding.
+    "lengths": [16, 32, 64, 128, 256, 512],
     "overhead": 1.5,  # validation passes, a failed run, restarts after preemption
 }
 

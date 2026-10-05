@@ -1,0 +1,97 @@
+{
+  "rows": 26557961,
+  "vocab_sizes": {
+    "adgroup_id": 755979,
+    "cate_id": 6635,
+    "brand": 95161,
+    "campaign_id": 392345,
+    "customer": 240342,
+    "pid": 5,
+    "cms_segid": 100,
+    "cms_group_id": 16,
+    "final_gender_code": 5,
+    "age_level": 10,
+    "pvalue_level": 6,
+    "shopping_level": 6,
+    "occupation": 5,
+    "new_user_class_level": 7
+  },
+  "splits": {
+    "train": {
+      "impressions": 20015245,
+      "users": 1006337,
+      "click_rate": 0.05196683827752296,
+      "prior_impressions": {
+        "median": 20.0,
+        "p90": 236.0,
+        "share_with_0": 0.1645985847287905,
+        "share_with_at_least_16": 0.5473127108861271,
+        "share_with_at_least_64": 0.2794745205467133,
+        "share_with_at_least_256": 0.0905945942705173,
+        "share_with_at_least_512": 0.02682879974739255
+      },
+      "share_ad_unseen_in_training": 0.0,
+      "share_no_profile": 0.0565437495269231
+    },
+    "val": {
+      "impressions": 3234051,
+      "users": 385925,
+      "click_rate": 0.049299469921779214,
+      "prior_impressions": {
+        "median": 47.0,
+        "p90": 471.0,
+        "share_with_0": 0.06748007375270211,
+        "share_with_at_least_16": 0.7342518717237297,
+        "share_with_at_least_64": 0.42916762908191614,
+        "share_with_at_least_256": 0.19443972899623413,
+        "share_with_at_least_512": 0.08789997436651432
+      },
+      "share_ad_unseen_in_training": 0.06709232476544123,
+      "share_no_profile": 0.05802042082824297
+    },
+    "test": {
+      "impressions": 3308665,
+      "users": 391741,
+      "click_rate": 0.05031938863559774,
+      "prior_impressions": {
+        "median": 52.0,
+        "p90": 536.0,
+        "share_with_0": 0.06388860764084608,
+        "share_with_at_least_16": 0.7495022917097983,
+        "share_with_at_least_64": 0.4550959374853604,
+        "share_with_at_least_256": 0.2141492112377651,
+        "share_with_at_least_512": 0.10704226629169167
+      },
+      "share_ad_unseen_in_training": 0.08767554285489768,
+      "share_no_profile": 0.06321220190016215
+    }
+  },
+  "training_sparsity": {
+    "adgroup_id": {
+      "distinct": 755976,
+      "median_impressions": 3.0,
+      "share_seen_once": 0.3111791908737844,
+      "share_seen_under_10": 0.6922349386753018,
+      "impression_share_from_seen_under_10": 0.07072583922904765
+    },
+    "user": {
+      "distinct": 1006337,
+      "median_impressions": 6.0,
+      "share_seen_once": 0.03960502296944264,
+      "share_seen_under_10": 0.6184310027356641,
+      "impression_share_from_seen_under_10": 0.136074227420149
+    }
+  },
+  "prior_impressions_all": {
+    "median": 26.0,
+    "p90": 298.0,
+    "p99": 941.0,
+    "max": 3749,
+    "share_with_0": 0.1402254111300186
+  },
+  "git": {
+    "commit": "858e434",
+    "dirty": true
+  },
+  "created_utc": "2026-10-05T03:37:16+00:00"
+}
